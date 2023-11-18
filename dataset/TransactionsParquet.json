@@ -1,0 +1,71 @@
+{
+	"name": "TransactionsParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalakepharm610_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "part-00000-tid-5475767024561899406-44a8546d-7a35-47d0-8bc7-fbbe8e435b96-143-1-c000.snappy.parquet",
+				"folderPath": "staging_parquet/transactions",
+				"fileSystem": "pharm"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "Transaction_Id",
+				"type": "INT64"
+			},
+			{
+				"name": "Transaction_Date",
+				"type": "UTF8"
+			},
+			{
+				"name": "Patient_Id",
+				"type": "UTF8"
+			},
+			{
+				"name": "Patient_Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Mock_NDC",
+				"type": "UTF8"
+			},
+			{
+				"name": "Medication_Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Qty",
+				"type": "FLOAT"
+			},
+			{
+				"name": "Price",
+				"type": "FLOAT"
+			},
+			{
+				"name": "Paid",
+				"type": "FLOAT"
+			},
+			{
+				"name": "Insurance_Id",
+				"type": "UTF8"
+			},
+			{
+				"name": "Void",
+				"type": "BOOLEAN"
+			},
+			{
+				"name": "Transaction_Date_format",
+				"type": "DATE"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

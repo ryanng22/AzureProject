@@ -1,0 +1,51 @@
+{
+	"name": "PharmParquetPt3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalakepharm610_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "part-00002-tid-4975876112227238612-acc381f1-3924-4d39-ba5c-4d96fbcff332-152-1-c000.snappy.parquet",
+				"folderPath": "staging_parquet/patients",
+				"fileSystem": "pharm"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "Id",
+				"type": "INT64"
+			},
+			{
+				"name": "Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Birthday",
+				"type": "UTF8"
+			},
+			{
+				"name": "Phone",
+				"type": "UTF8"
+			},
+			{
+				"name": "Insurance_Id",
+				"type": "INT64"
+			},
+			{
+				"name": "Birthday_format",
+				"type": "DATE"
+			},
+			{
+				"name": "IsCurrent",
+				"type": "INT32"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

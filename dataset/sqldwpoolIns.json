@@ -1,0 +1,36 @@
+{
+	"name": "sqldwpoolIns",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "warehouseworkspace_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Type",
+				"type": "varchar"
+			},
+			{
+				"name": "Amount",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Insurance"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

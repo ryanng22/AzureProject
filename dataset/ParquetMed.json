@@ -1,0 +1,47 @@
+{
+	"name": "ParquetMed",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalakepharm610_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "part-00000-tid-6274585745496846822-ac72e9d7-f13f-433d-9d40-8fa209391fac-145-1-c000.snappy.parquet",
+				"folderPath": "staging_parquet/medications",
+				"fileSystem": "pharm"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "Id",
+				"type": "INT64"
+			},
+			{
+				"name": "Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Strength",
+				"type": "FLOAT"
+			},
+			{
+				"name": "Mock_NDC",
+				"type": "UTF8"
+			},
+			{
+				"name": "PkgSize",
+				"type": "INT32"
+			},
+			{
+				"name": "PricePerUnit",
+				"type": "FLOAT"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

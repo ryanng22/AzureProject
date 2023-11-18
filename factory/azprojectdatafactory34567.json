@@ -1,0 +1,9 @@
+{
+	"name": "azprojectdatafactory34567",
+	"location": "westus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "8f99ea0e-f9ce-4354-8cb5-32169b76fb55",
+		"tenantId": "0e842502-70e5-4c84-a805-fdb48a1f9326"
+	}
+}

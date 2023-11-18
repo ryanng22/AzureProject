@@ -1,0 +1,44 @@
+{
+	"name": "sqldwpoolPt",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "warehouseworkspace_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Birthday",
+				"type": "date"
+			},
+			{
+				"name": "Phone",
+				"type": "varchar"
+			},
+			{
+				"name": "Insurance_Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "IsCurrent",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Patient"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

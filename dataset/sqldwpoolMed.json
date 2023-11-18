@@ -1,0 +1,46 @@
+{
+	"name": "sqldwpoolMed",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "warehouseworkspace_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Strength",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Mock_NDC",
+				"type": "varchar"
+			},
+			{
+				"name": "PkgSize",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PricePerUnit",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Medication"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

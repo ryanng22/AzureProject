@@ -1,0 +1,297 @@
+{
+	"name": "adls_to_sqldw",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "TransactionsParquet",
+						"type": "DatasetReference"
+					},
+					"name": "PharmParquetTx"
+				},
+				{
+					"dataset": {
+						"referenceName": "ParquetMed",
+						"type": "DatasetReference"
+					},
+					"name": "PharmParquetMed"
+				},
+				{
+					"dataset": {
+						"referenceName": "ParquetIns",
+						"type": "DatasetReference"
+					},
+					"name": "PharmParquetIns"
+				},
+				{
+					"dataset": {
+						"referenceName": "PharmParquetPt",
+						"type": "DatasetReference"
+					},
+					"name": "PharmParquetPt"
+				},
+				{
+					"dataset": {
+						"referenceName": "PharmParquetPt2",
+						"type": "DatasetReference"
+					},
+					"name": "PharmParquetPt2"
+				},
+				{
+					"dataset": {
+						"referenceName": "PharmParquetPt3",
+						"type": "DatasetReference"
+					},
+					"name": "PharmParquetPt3"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "sqldwpoolTx",
+						"type": "DatasetReference"
+					},
+					"name": "sqldwpoolTx",
+					"rejectedDataLinkedService": {
+						"referenceName": "datalakepharm610_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "sqldwpoolMed",
+						"type": "DatasetReference"
+					},
+					"name": "sqldwpoolMed",
+					"rejectedDataLinkedService": {
+						"referenceName": "datalakepharm610_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "sqldwpoolIns",
+						"type": "DatasetReference"
+					},
+					"name": "sqldwpoolIns"
+				},
+				{
+					"dataset": {
+						"referenceName": "sqldwpoolPt",
+						"type": "DatasetReference"
+					},
+					"name": "sqldwpoolPt"
+				}
+			],
+			"transformations": [
+				{
+					"name": "union1"
+				},
+				{
+					"name": "union2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Transaction_Id as long,",
+				"          Transaction_Date as string,",
+				"          Patient_Id as string,",
+				"          Patient_Name as string,",
+				"          Mock_NDC as string,",
+				"          Medication_Name as string,",
+				"          Qty as float,",
+				"          Price as float,",
+				"          Paid as float,",
+				"          Insurance_Id as string,",
+				"          Void as boolean,",
+				"          Transaction_Date_format as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PharmParquetTx",
+				"source(output(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Strength as float,",
+				"          Mock_NDC as string,",
+				"          PkgSize as integer,",
+				"          PricePerUnit as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PharmParquetMed",
+				"source(output(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Type as string,",
+				"          Amount as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PharmParquetIns",
+				"source(output(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Birthday as string,",
+				"          Phone as string,",
+				"          Insurance_Id as long,",
+				"          Birthday_format as date,",
+				"          IsCurrent as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PharmParquetPt",
+				"source(output(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Birthday as string,",
+				"          Phone as string,",
+				"          Insurance_Id as long,",
+				"          Birthday_format as date,",
+				"          IsCurrent as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PharmParquetPt2",
+				"source(output(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Birthday as string,",
+				"          Phone as string,",
+				"          Insurance_Id as long,",
+				"          Birthday_format as date,",
+				"          IsCurrent as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PharmParquetPt3",
+				"PharmParquetPt, PharmParquetPt2 union(byName: true)~> union1",
+				"union1, PharmParquetPt3 union(byName: true)~> union2",
+				"PharmParquetTx sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Transaction_Id as long,",
+				"          Transaction_Date as date,",
+				"          Patient_Id as long,",
+				"          Patient_Name as string,",
+				"          Mock_NDC as string,",
+				"          Medication_Name as string,",
+				"          Qty as double,",
+				"          Price as double,",
+				"          Insurance_Id as long,",
+				"          Void as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Transaction_Id,",
+				"          Transaction_Date = Transaction_Date_format,",
+				"          Patient_Id,",
+				"          Patient_Name,",
+				"          Mock_NDC,",
+				"          Medication_Name,",
+				"          Qty,",
+				"          Price,",
+				"          Insurance_Id,",
+				"          Void",
+				"     )) ~> sqldwpoolTx",
+				"PharmParquetMed sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Strength as double,",
+				"          Mock_NDC as string,",
+				"          PkgSize as integer,",
+				"          PricePerUnit as double",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Id,",
+				"          Name,",
+				"          Strength,",
+				"          Mock_NDC,",
+				"          PkgSize,",
+				"          PricePerUnit",
+				"     )) ~> sqldwpoolMed",
+				"PharmParquetIns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Type as string,",
+				"          Amount as double",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Id,",
+				"          Name,",
+				"          Type,",
+				"          Amount",
+				"     )) ~> sqldwpoolIns",
+				"union2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Id as long,",
+				"          Name as string,",
+				"          Birthday as date,",
+				"          Phone as string,",
+				"          Insurance_Id as long,",
+				"          IsCurrent as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Id,",
+				"          Name,",
+				"          Birthday = Birthday_format,",
+				"          Phone,",
+				"          Insurance_Id,",
+				"          IsCurrent",
+				"     )) ~> sqldwpoolPt"
+			]
+		}
+	}
+}

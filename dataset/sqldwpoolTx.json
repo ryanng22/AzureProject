@@ -1,0 +1,63 @@
+{
+	"name": "sqldwpoolTx",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "warehouseworkspace_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "Transaction_Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Transaction_Date",
+				"type": "date"
+			},
+			{
+				"name": "Patient_Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Patient_Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Mock_NDC",
+				"type": "varchar"
+			},
+			{
+				"name": "Medication_Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Qty",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Price",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Insurance_Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Void",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Fact_Transactions"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

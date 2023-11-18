@@ -1,0 +1,68 @@
+{
+	"name": "PharmTransformPipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "PharmDataTransform",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/ryan.ng22@gmail.com/AzDatabricks/Pharm Data Transform"
+				},
+				"linkedServiceName": {
+					"referenceName": "Databricks_ADF_service",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ADLS Migrate To DW Data Flow",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "PharmDataTransform",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "adls_to_sqldw",
+						"type": "DataFlowReference"
+					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "datalakepharm610_service",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "staging"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-11-18T23:25:48Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

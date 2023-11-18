@@ -1,0 +1,17 @@
+{
+	"name": "DestinationDataset_so6",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "warehouseworkspace_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Medications_Test"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

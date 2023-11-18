@@ -1,0 +1,14 @@
+{
+	"name": "Databricks_ADF_service",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-4740780523052161.1.azuredatabricks.net",
+			"authentication": "MSI",
+			"workspaceResourceId": "/subscriptions/58e06c85-e822-4761-bc71-2b1a441b2211/resourceGroups/az_project_grp/providers/Microsoft.Databricks/workspaces/databricks-pharm",
+			"existingClusterId": "1116-021030-qogcwn9x"
+		}
+	}
+}
