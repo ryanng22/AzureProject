@@ -1,0 +1,1144 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "azprojectdatafactory34567"
+		},
+		"datalakepharm610_service_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'datalakepharm610_service'"
+		},
+		"warehouseworkspace_service_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'warehouseworkspace_service'"
+		},
+		"Databricks_ADF_service_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1116-021030-qogcwn9x"
+		},
+		"datalakepharm610_service_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://datalakepharm610.dfs.core.windows.net/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Databricks_ADF_service')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-4740780523052161.1.azuredatabricks.net",
+					"authentication": "MSI",
+					"workspaceResourceId": "/subscriptions/58e06c85-e822-4761-bc71-2b1a441b2211/resourceGroups/az_project_grp/providers/Microsoft.Databricks/workspaces/databricks-pharm",
+					"existingClusterId": "[parameters('Databricks_ADF_service_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/datalakepharm610_service')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('datalakepharm610_service_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('datalakepharm610_service_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/warehouseworkspace_service')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('warehouseworkspace_service_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_so6')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "warehouseworkspace_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Medications_Test"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/warehouseworkspace_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "StagingParquetFilesOnly",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetFolders')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "staging_parquet",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Type",
+						"type": "UTF8"
+					},
+					{
+						"name": "Amount",
+						"type": "FLOAT"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetIns')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "part-00000-tid-7741054069276740234-9e52d918-518c-437b-aaa6-2b8cbcfbc3c3-144-1-c000.snappy.parquet",
+						"folderPath": "staging_parquet/insurance",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Type",
+						"type": "UTF8"
+					},
+					{
+						"name": "Amount",
+						"type": "FLOAT"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetMed')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "part-00000-tid-6274585745496846822-ac72e9d7-f13f-433d-9d40-8fa209391fac-145-1-c000.snappy.parquet",
+						"folderPath": "staging_parquet/medications",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Strength",
+						"type": "FLOAT"
+					},
+					{
+						"name": "Mock_NDC",
+						"type": "UTF8"
+					},
+					{
+						"name": "PkgSize",
+						"type": "INT32"
+					},
+					{
+						"name": "PricePerUnit",
+						"type": "FLOAT"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PharmParquetPt')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "part-00000-tid-4975876112227238612-acc381f1-3924-4d39-ba5c-4d96fbcff332-150-1-c000.snappy.parquet",
+						"folderPath": "staging_parquet/patients",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Birthday",
+						"type": "UTF8"
+					},
+					{
+						"name": "Phone",
+						"type": "UTF8"
+					},
+					{
+						"name": "Insurance_Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Birthday_format",
+						"type": "DATE"
+					},
+					{
+						"name": "IsCurrent",
+						"type": "INT32"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PharmParquetPt2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "part-00001-tid-4975876112227238612-acc381f1-3924-4d39-ba5c-4d96fbcff332-151-1-c000.snappy.parquet",
+						"folderPath": "staging_parquet/patients",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Birthday",
+						"type": "UTF8"
+					},
+					{
+						"name": "Phone",
+						"type": "UTF8"
+					},
+					{
+						"name": "Insurance_Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Birthday_format",
+						"type": "DATE"
+					},
+					{
+						"name": "IsCurrent",
+						"type": "INT32"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PharmParquetPt3')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "part-00002-tid-4975876112227238612-acc381f1-3924-4d39-ba5c-4d96fbcff332-152-1-c000.snappy.parquet",
+						"folderPath": "staging_parquet/patients",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Birthday",
+						"type": "UTF8"
+					},
+					{
+						"name": "Phone",
+						"type": "UTF8"
+					},
+					{
+						"name": "Insurance_Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Birthday_format",
+						"type": "DATE"
+					},
+					{
+						"name": "IsCurrent",
+						"type": "INT32"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_so6')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Medication - Sheet1.csv",
+						"fileSystem": "pharm"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Amount",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TransactionsParquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalakepharm610_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "staging_parquet/transactions",
+						"fileSystem": "pharm"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Transaction_Id",
+						"type": "INT64"
+					},
+					{
+						"name": "Transaction_Date",
+						"type": "UTF8"
+					},
+					{
+						"name": "Patient_Id",
+						"type": "UTF8"
+					},
+					{
+						"name": "Patient_Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Mock_NDC",
+						"type": "UTF8"
+					},
+					{
+						"name": "Medication_Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Qty",
+						"type": "FLOAT"
+					},
+					{
+						"name": "Price",
+						"type": "FLOAT"
+					},
+					{
+						"name": "Paid",
+						"type": "FLOAT"
+					},
+					{
+						"name": "Insurance_Id",
+						"type": "UTF8"
+					},
+					{
+						"name": "Void",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Transaction_Date_format",
+						"type": "DATE"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqldwpoolIns')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "warehouseworkspace_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Type",
+						"type": "varchar"
+					},
+					{
+						"name": "Amount",
+						"type": "float",
+						"precision": 15
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Insurance"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/warehouseworkspace_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqldwpoolMed')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "warehouseworkspace_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Strength",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Mock_NDC",
+						"type": "varchar"
+					},
+					{
+						"name": "PkgSize",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PricePerUnit",
+						"type": "float",
+						"precision": 15
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Medication"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/warehouseworkspace_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqldwpoolPt')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "warehouseworkspace_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Birthday",
+						"type": "date"
+					},
+					{
+						"name": "Phone",
+						"type": "varchar"
+					},
+					{
+						"name": "Insurance_Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "IsCurrent",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Patient"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/warehouseworkspace_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqldwpoolTx')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "warehouseworkspace_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "Transaction_Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Transaction_Date",
+						"type": "date"
+					},
+					{
+						"name": "Patient_Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Patient_Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Mock_NDC",
+						"type": "varchar"
+					},
+					{
+						"name": "Medication_Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Qty",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Price",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Insurance_Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Void",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Fact_Transactions"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/warehouseworkspace_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adls_to_sqldw')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "TransactionsParquet",
+								"type": "DatasetReference"
+							},
+							"name": "PharmParquetTx"
+						},
+						{
+							"dataset": {
+								"referenceName": "ParquetMed",
+								"type": "DatasetReference"
+							},
+							"name": "PharmParquetMed"
+						},
+						{
+							"dataset": {
+								"referenceName": "ParquetIns",
+								"type": "DatasetReference"
+							},
+							"name": "PharmParquetIns"
+						},
+						{
+							"dataset": {
+								"referenceName": "PharmParquetPt",
+								"type": "DatasetReference"
+							},
+							"name": "PharmParquetPt"
+						},
+						{
+							"dataset": {
+								"referenceName": "PharmParquetPt2",
+								"type": "DatasetReference"
+							},
+							"name": "PharmParquetPt2"
+						},
+						{
+							"dataset": {
+								"referenceName": "PharmParquetPt3",
+								"type": "DatasetReference"
+							},
+							"name": "PharmParquetPt3"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "sqldwpoolTx",
+								"type": "DatasetReference"
+							},
+							"name": "sqldwpoolTx",
+							"rejectedDataLinkedService": {
+								"referenceName": "datalakepharm610_service",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"dataset": {
+								"referenceName": "sqldwpoolMed",
+								"type": "DatasetReference"
+							},
+							"name": "sqldwpoolMed",
+							"rejectedDataLinkedService": {
+								"referenceName": "datalakepharm610_service",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"dataset": {
+								"referenceName": "sqldwpoolIns",
+								"type": "DatasetReference"
+							},
+							"name": "sqldwpoolIns"
+						},
+						{
+							"dataset": {
+								"referenceName": "sqldwpoolPt",
+								"type": "DatasetReference"
+							},
+							"name": "sqldwpoolPt"
+						}
+					],
+					"transformations": [
+						{
+							"name": "union1"
+						},
+						{
+							"name": "union2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Transaction_Id as long,",
+						"          Transaction_Date as string,",
+						"          Patient_Id as string,",
+						"          Patient_Name as string,",
+						"          Mock_NDC as string,",
+						"          Medication_Name as string,",
+						"          Qty as float,",
+						"          Price as float,",
+						"          Paid as float,",
+						"          Insurance_Id as string,",
+						"          Void as boolean,",
+						"          Transaction_Date_format as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PharmParquetTx",
+						"source(output(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Strength as float,",
+						"          Mock_NDC as string,",
+						"          PkgSize as integer,",
+						"          PricePerUnit as float",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PharmParquetMed",
+						"source(output(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Type as string,",
+						"          Amount as float",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PharmParquetIns",
+						"source(output(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Birthday as string,",
+						"          Phone as string,",
+						"          Insurance_Id as long,",
+						"          Birthday_format as date,",
+						"          IsCurrent as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PharmParquetPt",
+						"source(output(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Birthday as string,",
+						"          Phone as string,",
+						"          Insurance_Id as long,",
+						"          Birthday_format as date,",
+						"          IsCurrent as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PharmParquetPt2",
+						"source(output(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Birthday as string,",
+						"          Phone as string,",
+						"          Insurance_Id as long,",
+						"          Birthday_format as date,",
+						"          IsCurrent as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PharmParquetPt3",
+						"PharmParquetPt, PharmParquetPt2 union(byName: true)~> union1",
+						"union1, PharmParquetPt3 union(byName: true)~> union2",
+						"PharmParquetTx sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Transaction_Id as long,",
+						"          Transaction_Date as date,",
+						"          Patient_Id as long,",
+						"          Patient_Name as string,",
+						"          Mock_NDC as string,",
+						"          Medication_Name as string,",
+						"          Qty as double,",
+						"          Price as double,",
+						"          Insurance_Id as long,",
+						"          Void as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Transaction_Id,",
+						"          Transaction_Date = Transaction_Date_format,",
+						"          Patient_Id,",
+						"          Patient_Name,",
+						"          Mock_NDC,",
+						"          Medication_Name,",
+						"          Qty,",
+						"          Price,",
+						"          Insurance_Id,",
+						"          Void",
+						"     )) ~> sqldwpoolTx",
+						"PharmParquetMed sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Strength as double,",
+						"          Mock_NDC as string,",
+						"          PkgSize as integer,",
+						"          PricePerUnit as double",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Id,",
+						"          Name,",
+						"          Strength,",
+						"          Mock_NDC,",
+						"          PkgSize,",
+						"          PricePerUnit",
+						"     )) ~> sqldwpoolMed",
+						"PharmParquetIns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Type as string,",
+						"          Amount as double",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Id,",
+						"          Name,",
+						"          Type,",
+						"          Amount",
+						"     )) ~> sqldwpoolIns",
+						"union2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Id as long,",
+						"          Name as string,",
+						"          Birthday as date,",
+						"          Phone as string,",
+						"          Insurance_Id as long,",
+						"          IsCurrent as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Id,",
+						"          Name,",
+						"          Birthday = Birthday_format,",
+						"          Phone,",
+						"          Insurance_Id,",
+						"          IsCurrent",
+						"     )) ~> sqldwpoolPt"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/TransactionsParquet')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetMed')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetIns')]",
+				"[concat(variables('factoryId'), '/datasets/PharmParquetPt')]",
+				"[concat(variables('factoryId'), '/datasets/PharmParquetPt2')]",
+				"[concat(variables('factoryId'), '/datasets/PharmParquetPt3')]",
+				"[concat(variables('factoryId'), '/datasets/sqldwpoolTx')]",
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]",
+				"[concat(variables('factoryId'), '/datasets/sqldwpoolMed')]",
+				"[concat(variables('factoryId'), '/datasets/sqldwpoolIns')]",
+				"[concat(variables('factoryId'), '/datasets/sqldwpoolPt')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PharmTransformPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "PharmDataTransform",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/ryan.ng22@gmail.com/AzDatabricks/Pharm Data Transform"
+						},
+						"linkedServiceName": {
+							"referenceName": "Databricks_ADF_service",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ADLS Migrate To DW Data Flow",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "adls_to_sqldw",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"PharmParquetTx": {},
+									"PharmParquetMed": {},
+									"PharmParquetIns": {},
+									"PharmParquetPt": {},
+									"PharmParquetPt2": {},
+									"PharmParquetPt3": {},
+									"sqldwpoolTx": {},
+									"sqldwpoolMed": {},
+									"sqldwpoolIns": {},
+									"sqldwpoolPt": {}
+								}
+							},
+							"staging": {
+								"linkedService": {
+									"referenceName": "datalakepharm610_service",
+									"type": "LinkedServiceReference"
+								},
+								"folderPath": "staging"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-11-18T23:25:48Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Databricks_ADF_service')]",
+				"[concat(variables('factoryId'), '/dataflows/adls_to_sqldw')]",
+				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]"
+			]
+		}
+	]
+}

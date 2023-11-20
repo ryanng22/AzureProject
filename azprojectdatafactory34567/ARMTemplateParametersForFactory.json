@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "azprojectdatafactory34567"
+		},
+		"datalakepharm610_service_accountKey": {
+			"value": ""
+		},
+		"warehouseworkspace_service_connectionString": {
+			"value": ""
+		},
+		"Databricks_ADF_service_properties_typeProperties_existingClusterId": {
+			"value": "1116-021030-qogcwn9x"
+		},
+		"datalakepharm610_service_properties_typeProperties_url": {
+			"value": "https://datalakepharm610.dfs.core.windows.net/"
+		}
+	}
+}
