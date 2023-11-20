@@ -176,7 +176,6 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "part-00000-tid-7741054069276740234-9e52d918-518c-437b-aaa6-2b8cbcfbc3c3-144-1-c000.snappy.parquet",
 						"folderPath": "staging_parquet/insurance",
 						"fileSystem": "pharm"
 					},
@@ -219,7 +218,6 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "part-00000-tid-6274585745496846822-ac72e9d7-f13f-433d-9d40-8fa209391fac-145-1-c000.snappy.parquet",
 						"folderPath": "staging_parquet/medications",
 						"fileSystem": "pharm"
 					},
@@ -270,7 +268,6 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "part-00000-tid-4975876112227238612-acc381f1-3924-4d39-ba5c-4d96fbcff332-150-1-c000.snappy.parquet",
 						"folderPath": "staging_parquet/patients",
 						"fileSystem": "pharm"
 					},
@@ -780,20 +777,6 @@
 								"type": "DatasetReference"
 							},
 							"name": "PharmParquetPt"
-						},
-						{
-							"dataset": {
-								"referenceName": "PharmParquetPt2",
-								"type": "DatasetReference"
-							},
-							"name": "PharmParquetPt2"
-						},
-						{
-							"dataset": {
-								"referenceName": "PharmParquetPt3",
-								"type": "DatasetReference"
-							},
-							"name": "PharmParquetPt3"
 						}
 					],
 					"sinks": [
@@ -834,14 +817,7 @@
 							"name": "sqldwpoolPt"
 						}
 					],
-					"transformations": [
-						{
-							"name": "union1"
-						},
-						{
-							"name": "union2"
-						}
-					],
+					"transformations": [],
 					"scriptLines": [
 						"source(output(",
 						"          Transaction_Id as long,",
@@ -896,34 +872,6 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet') ~> PharmParquetPt",
-						"source(output(",
-						"          Id as long,",
-						"          Name as string,",
-						"          Birthday as string,",
-						"          Phone as string,",
-						"          Insurance_Id as long,",
-						"          Birthday_format as date,",
-						"          IsCurrent as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet') ~> PharmParquetPt2",
-						"source(output(",
-						"          Id as long,",
-						"          Name as string,",
-						"          Birthday as string,",
-						"          Phone as string,",
-						"          Insurance_Id as long,",
-						"          Birthday_format as date,",
-						"          IsCurrent as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet') ~> PharmParquetPt3",
-						"PharmParquetPt, PharmParquetPt2 union(byName: true)~> union1",
-						"union1, PharmParquetPt3 union(byName: true)~> union2",
 						"PharmParquetTx sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -1012,7 +960,7 @@
 						"          Type,",
 						"          Amount",
 						"     )) ~> sqldwpoolIns",
-						"union2 sink(allowSchemaDrift: true,",
+						"PharmParquetPt sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          Id as long,",
@@ -1048,8 +996,6 @@
 				"[concat(variables('factoryId'), '/datasets/ParquetMed')]",
 				"[concat(variables('factoryId'), '/datasets/ParquetIns')]",
 				"[concat(variables('factoryId'), '/datasets/PharmParquetPt')]",
-				"[concat(variables('factoryId'), '/datasets/PharmParquetPt2')]",
-				"[concat(variables('factoryId'), '/datasets/PharmParquetPt3')]",
 				"[concat(variables('factoryId'), '/datasets/sqldwpoolTx')]",
 				"[concat(variables('factoryId'), '/linkedServices/datalakepharm610_service')]",
 				"[concat(variables('factoryId'), '/datasets/sqldwpoolMed')]",
@@ -1105,8 +1051,6 @@
 									"PharmParquetMed": {},
 									"PharmParquetIns": {},
 									"PharmParquetPt": {},
-									"PharmParquetPt2": {},
-									"PharmParquetPt3": {},
 									"sqldwpoolTx": {},
 									"sqldwpoolMed": {},
 									"sqldwpoolIns": {},
