@@ -1,0 +1,20 @@
+{
+	"name": "Parquet1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalakepharm610_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "StagingParquetFilesOnly",
+				"fileSystem": "pharm"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
