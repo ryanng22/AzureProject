@@ -10,7 +10,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "part-00000-tid-4975876112227238612-acc381f1-3924-4d39-ba5c-4d96fbcff332-150-1-c000.snappy.parquet",
 				"folderPath": "staging_parquet/patients",
 				"fileSystem": "pharm"
 			},

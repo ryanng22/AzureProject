@@ -31,20 +31,6 @@
 						"type": "DatasetReference"
 					},
 					"name": "PharmParquetPt"
-				},
-				{
-					"dataset": {
-						"referenceName": "PharmParquetPt2",
-						"type": "DatasetReference"
-					},
-					"name": "PharmParquetPt2"
-				},
-				{
-					"dataset": {
-						"referenceName": "PharmParquetPt3",
-						"type": "DatasetReference"
-					},
-					"name": "PharmParquetPt3"
 				}
 			],
 			"sinks": [
@@ -85,14 +71,7 @@
 					"name": "sqldwpoolPt"
 				}
 			],
-			"transformations": [
-				{
-					"name": "union1"
-				},
-				{
-					"name": "union2"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(output(",
 				"          Transaction_Id as long,",
@@ -147,34 +126,6 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> PharmParquetPt",
-				"source(output(",
-				"          Id as long,",
-				"          Name as string,",
-				"          Birthday as string,",
-				"          Phone as string,",
-				"          Insurance_Id as long,",
-				"          Birthday_format as date,",
-				"          IsCurrent as integer",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> PharmParquetPt2",
-				"source(output(",
-				"          Id as long,",
-				"          Name as string,",
-				"          Birthday as string,",
-				"          Phone as string,",
-				"          Insurance_Id as long,",
-				"          Birthday_format as date,",
-				"          IsCurrent as integer",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> PharmParquetPt3",
-				"PharmParquetPt, PharmParquetPt2 union(byName: true)~> union1",
-				"union1, PharmParquetPt3 union(byName: true)~> union2",
 				"PharmParquetTx sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -263,7 +214,7 @@
 				"          Type,",
 				"          Amount",
 				"     )) ~> sqldwpoolIns",
-				"union2 sink(allowSchemaDrift: true,",
+				"PharmParquetPt sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Id as long,",
