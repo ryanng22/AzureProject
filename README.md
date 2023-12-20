@@ -17,10 +17,10 @@ Transform all files into parquet to minimize storage and increase performance.
 
 Analytics Environment: Azure Synapse Analytics Dedicated SQL Pool (FKA Azure Datawarehouse)  
 Store parquet files into their respective warehouse tables. Mapping below:  
-Transactions -> FactTransactions  
-Medications -> DimMedications  
-Patients -> DimPatients  
-Insurance -> DimInsurance  
+&ensp; Transactions -> FactTransactions  
+&ensp; Medications -> DimMedications  
+&ensp; Patients -> DimPatients  
+&ensp; Insurance -> DimInsurance  
 
 Monitoring: Azure Event Hubs  
 Capture monitoring logs from data warehouse using Event Hubs service  
